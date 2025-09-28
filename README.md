@@ -8,6 +8,6 @@
 
  Создаем первую коллекцию в Postman:
 
- - [Коллекция qa.demoshopping.ru (Методы products из Swagger)](https://www.postman.com/alexfoster-340722/workspace/qa-demoshopping/collection/46026488-60866372-3234-40b0-9eeb-57cbc9a3af9d?action=share&source=copy-link&creator=46026488)
+ - [Коллекция qa.demoshopping.ru (Методы products из Swagger)](https://www.postman.com/alexfoster-340722/workspace/qa-demoshopping/folder/46026488-ed2fb0f8-fa11-42a5-82bf-f14fed832935?action=share&source=copy-link&creator=46026488&ctx=documentation)
 
  
