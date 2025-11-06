@@ -1,0 +1,2580 @@
+{
+	"info": {
+		"_postman_id": "60866372-3234-40b0-9eeb-57cbc9a3af9d",
+		"name": "REST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "46026488",
+		"_collection_link": "https://www.postman.com/alexfoster-340722/workspace/qa-demoshopping/collection/46026488-60866372-3234-40b0-9eeb-57cbc9a3af9d?action=share&source=collection_link&creator=46026488"
+	},
+	"item": [
+		{
+			"name": "https://qa.demoshopping.ru/",
+			"item": [
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "200 Запрос списка продуктов",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Статус-код 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Время ответа меньше 200 миллисекунд\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products"
+									],
+									"query": [
+										{
+											"key": "",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 Добавление нового продукта",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Получаем текст ответа\r",
+											"let responseText = pm.response.text();\r",
+											"\r",
+											"// Ищем ID с помощью регулярного выражения\r",
+											"let idMatch = responseText.match(/ID:\\s*(\\d+)/);\r",
+											"\r",
+											"pm.test(\"Ответ содержит ID\", function () {\r",
+											"    pm.expect(idMatch).to.not.be.null;\r",
+											"});\r",
+											"\r",
+											"if (idMatch) {\r",
+											"    let productId = Number(idMatch[1]);\r",
+											"    pm.test(\"ID является числом\", function () {\r",
+											"        pm.expect(productId).to.be.a('number');\r",
+											"    });\r",
+											"\r",
+											"    // Сохраняем ID в переменную окружения\r",
+											"    pm.environment.set(\"productsId\", productId);\r",
+											"    console.log(\"Сохранён ID:\", productId);\r",
+											"\r",
+											"    // Проверка, что ID меняется от запроса к запросу\r",
+											"    let prevId = pm.collectionVariables.get(\"prevProductId\");\r",
+											"    if (prevId) {\r",
+											"        pm.test(\"ID изменился относительно предыдущего\", function () {\r",
+											"            pm.expect(productId).to.not.equal(prevId);\r",
+											"        });\r",
+											"    }\r",
+											"    pm.collectionVariables.set(\"prevProductId\", productId);\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{$randomWord}}\",\r\n  \"description\": \"{{$randomLoremSentence}}\",\r\n  \"price\": {{$randomInt}},\r\n  \"category\": \"{{$randomWord}}\",\r\n  \"manufacturer\": \"{{$randomCompanyName}}\",\r\n  \"imageUrl\": \"https://picsum.photos/seed/{{$randomUUID}}/600/400\",\r\n  \"freeShipping\": {{$randomBoolean}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/add-product"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Добавление нового продукта - пустое значение поля прайс",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"Example Product\",\r\n  \"description\": \"This is an example product.\",\r\n  \"price\": ,\r\n  \"category\": \"Electronics\",\r\n  \"manufacturer\": \"Example Manufacturer\",\r\n  \"imageUrl\": \"http://example.com/image.jpg\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/add-product"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Поиск товара по ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Статус-код 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Время ответа меньше 100 миллисекунд\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(100);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/{{productsId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Поиск товара по ID (Товар не найден) - неверный ID в эндпоинте",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/232323"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Полное обновление товара по ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Получаем текст ответа\r",
+											"let responseText = pm.response.text();\r",
+											"\r",
+											"// 1️⃣ Статус-код\r",
+											"pm.test(\"Статус ответа 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// 2️⃣ Время ответа\r",
+											"pm.test(\"Время ответа < 500 мс\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+											"});\r",
+											"\r",
+											"// 3️⃣ Проверка, что текст содержит ключевые слова\r",
+											"pm.test(\"Текст ответа содержит 'Товар обновлён'\", function () {\r",
+											"    pm.expect(responseText).to.include(\"Товар обновлён\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"price\": 0,\r\n  \"category\": \"string\",\r\n  \"manufacturer\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/{{productsId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Неверные данные продукта - значение поля price - латиница",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"price\": \"ten\",\r\n  \"category\": \"string\",\r\n  \"manufacturer\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Товар с таким ID не найден - неверный ID в эндпоинте",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"description\": \"string\",\r\n  \"price\": 0,\r\n  \"category\": \"string\",\r\n  \"manufacturer\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/3784979843297834"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Частичное обновление товара по ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Получаем текст ответа\r",
+											"let responseText = pm.response.text();\r",
+											"\r",
+											"// 1️⃣ Статус-код\r",
+											"pm.test(\"Статус ответа 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// 2️⃣ Время ответа\r",
+											"pm.test(\"Время ответа < 1000 мс\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+											"});\r",
+											"\r",
+											"// 3️⃣ Проверка, что текст содержит ключевую фразу\r",
+											"pm.test(\"Текст ответа содержит 'Товар частично обновлён'\", function () {\r",
+											"    pm.expect(responseText).to.include(\"Товар частично обновлён\");\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"iPhone 17 Pro 256 gb\",\r\n  \"description\": \"its iPhone 17 pro\",\r\n  \"price\": 0,\r\n  \"category\": \"string\",\r\n  \"manufacturer\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/{{productsId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Неверные данные продукта - в теле отсутствуют кавычки у manufacturer",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"iPhone 17 Pro 256 gb\",\r\n  \"description\": \"its iPhone 17 pro\",\r\n  \"price\": 0,\r\n  \"category\": \"string\",\r\n  manufacturer: \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Товар с таким ID не найден - введен невеный ID в эндпоинте",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"iPhone 17 Pro 256 gb\",\r\n  \"description\": \"its iPhone 17 pro\",\r\n  \"price\": 0,\r\n  \"category\": \"string\",\r\n  \"manufacturer\": \"string\",\r\n  \"imageUrl\": \"string\",\r\n  \"freeShipping\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/products/id/24423324"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Удаление товара по ID (Товар успешно удалён)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Статус-код 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Время ответа меньше 1 секунда\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/products/id/{{productsId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "403 Удаление товара запрещено - товар с id11 запрещен к удалению",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/products/id/11"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Товар не найден - неверный ID в эндпоинте",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/products/id/113232"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Поиск товаров по категории",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindByCategory?category=Phones",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindByCategory"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Phones"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "404 Товары в данной категории не найдены - ошибка в значении поля категории",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindByCategory?category=Phhones",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindByCategory"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Phhones"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 Поиск товаров по производителю",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindByManufacturer?manufacturer=Samsung",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindByManufacturer"
+									],
+									"query": [
+										{
+											"key": "manufacturer",
+											"value": "Samsung"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "404 \t Товары данного производителя не найдены - ошибка в значении поля производитель",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindByManufacturer?manufacturer=Sammmsung",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindByManufacturer"
+									],
+									"query": [
+										{
+											"key": "manufacturer",
+											"value": "Sammmsung"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 Поиск товаров с бесплатной доставкой",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindByShipping?freeShipping=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindByShipping"
+									],
+									"query": [
+										{
+											"key": "freeShipping",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "404 Товары с указанным параметром бесплатной доставки не найдены - ошибка в эндпоинте",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": 0,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/FindB1yShipping?freeShipping=true",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"FindB1yShipping"
+									],
+									"query": [
+										{
+											"key": "freeShipping",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 Фильтрация списка продуктов",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/products/filter?category=Phones&manufacturer=Huawei&freeShipping=true&minPrice=500&maxPrice=1500",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei"
+										},
+										{
+											"key": "freeShipping",
+											"value": "true"
+										},
+										{
+											"key": "minPrice",
+											"value": "500"
+										},
+										{
+											"key": "maxPrice",
+											"value": "1500"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 Фильтрация списка продуктов. Значение поля price - кириллица",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\r\n  {\r\n    \"id\": 0,\r\n    \"name\": \"string\",\r\n    \"description\": \"string\",\r\n    \"price\": десять,\r\n    \"category\": \"string\",\r\n    \"manufacturer\": \"string\",\r\n    \"imageUrl\": \"string\",\r\n    \"freeShipping\": true\r\n  }\r\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/products/filter?category=Phones&manufacturer=Huawei&freeShipping=true&minPrice=500&maxPrice=1500",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"products",
+										"filter"
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Phones"
+										},
+										{
+											"key": "manufacturer",
+											"value": "Huawei"
+										},
+										{
+											"key": "freeShipping",
+											"value": "true"
+										},
+										{
+											"key": "minPrice",
+											"value": "500"
+										},
+										{
+											"key": "maxPrice",
+											"value": "1500"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "200 Авторизация пользователя",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    // Парсим JSON из ответа\r",
+											"    let jsonData = pm.response.json();\r",
+											"\r",
+											"    // Проверяем статус ответа\r",
+											"    pm.test(\"Статус ответа 200\", function () {\r",
+											"        pm.response.to.have.status(200);\r",
+											"    });\r",
+											"\r",
+											"    // Проверяем, что токен есть\r",
+											"    pm.test(\"Ответ содержит токен\", function () {\r",
+											"        pm.expect(jsonData).to.have.property(\"token\");\r",
+											"    });\r",
+											"\r",
+											"    // Если токен есть — сохраняем в переменную окружения \"key\"\r",
+											"    if (jsonData.token) {\r",
+											"        pm.environment.set(\"key\", jsonData.token);\r",
+											"        console.log(\"✅ Токен обновлён в переменной окружения key:\", jsonData.token);\r",
+											"    } else {\r",
+											"        console.warn(\"⚠️ В ответе нет поля token\");\r",
+											"    }\r",
+											"\r",
+											"} catch (e) {\r",
+											"    console.error(\"❌ Ошибка парсинга ответа:\", e);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": {{user_name}},\r\n  \"password\": {{user_password}}\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/login"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Авторизация пользователя (Неверный пароль)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": {{user_name}}},\r\n  \"password\": \"123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/login"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Регистрация нового пользователя",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Mikl977\",\r\n  \"password\": \"Stone9876\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/register"
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Регистрация) Пользователь уже существует",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Mikl977\",\r\n  \"password\": \"Stone9876\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/register"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Добавление нового пользователя",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"try {\r",
+											"    // Парсим тело ответа\r",
+											"    let responseText = pm.response.text();\r",
+											"\r",
+											"    // Регулярное выражение для извлечения ID\r",
+											"    let idMatch = responseText.match(/ID:\\s*(\\d+)/);\r",
+											"\r",
+											"    pm.test(\"Ответ содержит ID пользователя\", function () {\r",
+											"        pm.expect(idMatch).to.not.be.null;\r",
+											"    });\r",
+											"\r",
+											"    // Если нашли ID, сохраняем в переменную окружения\r",
+											"    if (idMatch) {\r",
+											"        let userId = idMatch[1]; // сам ID\r",
+											"        pm.environment.set(\"userId\", userId);\r",
+											"        console.log(\"✅ ID пользователя сохранён в переменную userId:\", userId);\r",
+											"    } else {\r",
+											"        console.warn(\"⚠️ Не удалось найти ID в ответе\");\r",
+											"    }\r",
+											"\r",
+											"} catch (e) {\r",
+											"    console.error(\"❌ Ошибка обработки ответа:\", e);\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Mikl97447\",\r\n  \"password\": \"Stone9876\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/users"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Неверные данные пользователя (Неверный логин)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"username\": \"Mikl\",\r\n  \"password\": \"Stone9876\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/users"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Получение всех user_id и login пользователей",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{url}}/users"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Получение всех user_id и login пользователей (Mock server вместо url)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{mock_url}}/users"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"error\": \"Internal Server Error\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/users?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"users"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Удаление пользователя по ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/users/{{userId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Пользователь не найден (Пустое значение userID)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/users/{{userId}}"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Cart",
+					"item": [
+						{
+							"name": "200 Добавить товар в корзину пользователя (Успешно)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"quantity\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Добавить товар в корзину пользователя (Отсутствуют кавычки в теле запроса)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  productId: 1,\r\n  quantity: 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Добавить товар в корзину пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"quantity\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Добавить товар в корзину пользователя (Mock Server вместо url)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"quantity\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/cart"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"error\": \"Internal Server Error\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/cart?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"cart"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Возвращение содержимого корзины пользователя (успешно)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let data = pm.response.json();\r",
+											"\r",
+											"// Проверяем что корзина не пуста\r",
+											"pm.test(\"Корзина не пуста\", function () {\r",
+											"    pm.expect(data.length).to.be.above(0);\r",
+											"});\r",
+											"\r",
+											"// ✅ Берём ID первого товара\r",
+											"let firstId = data[0].cart_item_id;\r",
+											"\r",
+											"// ⬅️ Сохраняем в переменную окружения cartItemId (без s!)\r",
+											"pm.environment.set(\"cartItemId\", firstId);\r",
+											"\r",
+											"console.log(\"Переменная окружения cartItemId обновлена:\", firstId);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/getCart"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Возвращение содержимого корзины пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "{{url}}/getCart"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Возвращение содержимого корзины пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{mock_url}}/getCart"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"error\": \"Internal Server Error\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/getCart?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"getCart"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "200 Обновление количества товара в корзине пользователя",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 7\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Обновление количества товара в корзине пользователя (Текст вместо числа)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": текст\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Обновление количества товара в корзине пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Обновление количества товара в корзине пользователя (Неверный cartItemId)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/12"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Обновление количества товара в корзине пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/cart/{{cartItemId}}"
+							},
+							"response": [
+								{
+									"name": "500 Обновление количества товара в корзине пользователя (Mock Server вместо url)",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"error\": \"Internal Server Error\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/cart/{{cartItemId}}?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"cart",
+												"{{cartItemId}}"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "200 Удаление товара из корзины пользователя",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Удаление товара из корзины пользователя (Кириллица вместо CartId в url)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/вррв"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Удаление товара из корзины пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Удаление товара из корзины пользователя (Товар в корзине не найден)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart/{{cartItemId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Удаление товара из корзины пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/cart/{{cartItemId}}"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"error\": \"Internal Server Error\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/cart/{{cartItemId}}?Status=500 Internal Server Error",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"cart",
+												"{{cartItemId}}"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "200 Добавить товар в корзину пользователя (Успешно) Дубликат для корректности тестового прогона",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"quantity\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "201 Создание заказов из товара в корзине пользователя",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let data = pm.response.json();\r",
+											"\r",
+											"// ✅ Проверяем, что поле orderId есть в ответе\r",
+											"pm.test(\"Ответ содержит orderId\", function () {\r",
+											"    pm.expect(data).to.have.property(\"orderId\");\r",
+											"});\r",
+											"\r",
+											"// ✅ Сохраняем значение orderId в переменную окружения\r",
+											"pm.environment.set(\"orderId\", data.orderId);\r",
+											"\r",
+											"console.log(\"Переменная окружения orderId обновлена:\", data.orderId);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "{{url}}/orders"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Создание заказов из товара в корзине пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"url": "{{url}}/orders"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Создание заказов из товара в корзине пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "{{mock_url}}/orders"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{mock_url}}/orders?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"orders"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Изменение количества товара в заказе",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 18\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Изменение количества товара в заказе (Отсутствует двоеточие в теле)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\" 18\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Изменение количества товара в заказе (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 18\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Изменение количества товара в заказе (Неверные order Id и productId)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 18\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/4324/products/5"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Изменение количества товара в заказе (Mock Server вместо url)",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"quantity\": 18\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"quantity\": 18\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/orders/{{orderId}}/products/{{productId}}?Status=500 Internal Server Error",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"orders",
+												"{{orderId}}",
+												"products",
+												"{{productId}}"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Обновление общей суммы заказов пользователя",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/update-orders-total"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Обновление общей суммы заказов пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/update-orders-total"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Обновление общей суммы заказов пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/update-orders-total"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/update-orders-total?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"update-orders-total"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Получение списка всех заказов пользователя",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{url}}/user-orders"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Получение списка всех заказов пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": "{{url}}/user-orders"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Получение списка всех заказов пользователя (Mock Server вместо url)",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "{{mock_url}}/user-orders"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{mock_url}}/user-orders?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"user-orders"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Получение данных оплаченных заказов",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/api/orders-history"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Получение данных оплаченных заказов  (Authorization - No Auth)",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/api/orders-history"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Получение данных оплаченных заказов  (Mock Server вместо url)",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/api/orders-history"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/orders-history?Status=500 Internal Server Error",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"orders-history"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "200 Удаление товара из заказа",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Удаление товара из заказа (Цифры в теле запроса)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "41214",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Удаление товара из заказа (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "404 Удаление товара из заказа (Товар или заказ не найдены)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Удаление товара из заказа (Mock Server вместо url)",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{mock_url}}/orders/{{orderId}}/products/{{productId}}"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{url}}/orders/{{orderId}}/products/{{productId}}?Status=500 Internal Server Error",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"orders",
+												"{{orderId}}",
+												"products",
+												"{{productId}}"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Payment",
+					"item": [
+						{
+							"name": "200 Обновление балансов и карт PayPal",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/updateBalances"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Обновление балансов и карт PayPal Copy",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/updateBalances"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/updateBalances?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"updateBalances"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": [],
+									"cookie": [
+										{
+											"expires": "Invalid Date",
+											"domain": "",
+											"path": ""
+										}
+									],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "200 Добавить товар в корзину пользователя (Успешно) Дубликат для корректности тестового прогона",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"quantity\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/cart"
+							},
+							"response": []
+						},
+						{
+							"name": "201 Создание заказов из товара в корзине пользователя Дубликат для корректности тестового прогона",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let data = pm.response.json();\r",
+											"\r",
+											"// ✅ Проверяем, что поле orderId есть в ответе\r",
+											"pm.test(\"Ответ содержит orderId\", function () {\r",
+											"    pm.expect(data).to.have.property(\"orderId\");\r",
+											"});\r",
+											"\r",
+											"// ✅ Сохраняем значение orderId в переменную окружения\r",
+											"pm.environment.set(\"orderId\", data.orderId);\r",
+											"\r",
+											"console.log(\"Переменная окружения orderId обновлена:\", data.orderId);"
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": "{{url}}/orders"
+							},
+							"response": []
+						},
+						{
+							"name": "200 Оплата заказов пользователя",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"8820354696467284\",\r\n  \"expiry_month\": 12,\r\n  \"expiry_year\": 26,\r\n  \"cvv\": \"123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/pay"
+							},
+							"response": []
+						},
+						{
+							"name": "400 Оплата заказов пользователя (Ошибка данных карты)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"8820354696465555\",\r\n  \"expiry_month\": 11,\r\n  \"expiry_year\": 25,\r\n  \"cvv\": \"555\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/pay"
+							},
+							"response": []
+						},
+						{
+							"name": "401 Оплата заказов пользователя (Authorization - No Auth)",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"8820354696467284\",\r\n  \"expiry_month\": 12,\r\n  \"expiry_year\": 26,\r\n  \"cvv\": \"123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{url}}/pay"
+							},
+							"response": []
+						},
+						{
+							"name": "500 Оплата заказов пользователя  (Mock Server вместо url)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"8820354696467284\",\r\n  \"expiry_month\": 12,\r\n  \"expiry_year\": 26,\r\n  \"cvv\": \"123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{mock_url}}/pay"
+							},
+							"response": [
+								{
+									"name": "500 Internal server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"card_type\": \"VISA\",\r\n  \"card_code\": \"8820354696467284\",\r\n  \"expiry_month\": 12,\r\n  \"expiry_year\": 26,\r\n  \"cvv\": \"123\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{mock_url}}/pay?Status=500 Internal Server Error",
+											"host": [
+												"{{mock_url}}"
+											],
+											"path": [
+												"pay"
+											],
+											"query": [
+												{
+													"key": "Status",
+													"value": "500 Internal Server Error"
+												}
+											]
+										}
+									},
+									"_postman_previewlanguage": "Text",
+									"header": null,
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "{{vault:authorization-secret}}"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "prevProductId",
+			"value": ""
+		}
+	]
+}
